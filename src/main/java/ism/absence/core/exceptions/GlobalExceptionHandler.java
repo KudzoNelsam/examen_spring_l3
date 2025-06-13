@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RestResponse<Void>> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(

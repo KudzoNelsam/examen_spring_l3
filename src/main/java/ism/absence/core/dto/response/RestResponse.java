@@ -17,14 +17,14 @@ import java.util.Map;
 public class RestResponse <T>{
     private int status;
     private String type;
-    private T result;
+    private T data;
     private PaginationMeta pagination;
     private Map<String, String> errors;
 
     public static <T> RestResponse<T> of(HttpStatus status, T data, String type) {
         return RestResponse.<T>builder()
                 .status(status.value())
-                .result(data)
+                .data(data)
                 .type(type)
                 .build();
     }
@@ -32,7 +32,7 @@ public class RestResponse <T>{
     public static <T> RestResponse<T> paginate(Page<T> page, String type, HttpStatus status) {
         return RestResponse.<T>builder()
                 .status(status.value())
-                .result((T) page.getContent())
+                .data((T) page.getContent())
                 .type(type)
                 .pagination(PaginationMeta.of(page))
                 .build();

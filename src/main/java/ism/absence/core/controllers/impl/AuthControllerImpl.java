@@ -5,13 +5,12 @@ import ism.absence.config.JwtUtil;
 import ism.absence.core.controllers.AuthController;
 import ism.absence.core.dto.request.UserAuthRequestDTO;
 import ism.absence.core.dto.request.UserRequestDTO;
-import ism.absence.core.dto.response.UserResponseDTO;
 import ism.absence.core.dto.response.RestResponse;
+import ism.absence.core.dto.response.UserResponseDTO;
 import ism.absence.data.enums.UserRole;
 import ism.absence.data.models.User;
 import ism.absence.services.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @Tag(name = "User Management", description = "APIs for managing users")
-@Slf4j
-
 
 @RequiredArgsConstructor
 @RestController
@@ -62,7 +59,7 @@ public class AuthControllerImpl implements AuthController {
             );
         }
 
-        User user = userOpt.get();
+        User user = userOpt.get(); // Récupération de l'utilisateur
         String token = jwtUtil.generateToken(user.getUsername());
         UserResponseDTO authResponse = UserResponseDTO.builder()
                 .token(token)

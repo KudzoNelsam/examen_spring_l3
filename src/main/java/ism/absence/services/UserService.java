@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface UserService {
     User save(User userRequestDTO);
     Optional<User> findById(String id);
-    List<User> findAll(Pageable pageable);
+    List<User> findAll();
     Optional<User> login(String username, String password);
 }
