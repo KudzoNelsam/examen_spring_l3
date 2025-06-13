@@ -1,10 +1,7 @@
 package ism.absence.data.models;
 
 import ism.absence.data.enums.UserRole;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,17 +10,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-@Document(collection = "users")
+@EqualsAndHashCode(callSuper = true)
+@Document(collection = "utilisateurs")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User implements UserDetails {
+public class User extends Personne implements UserDetails {
 
     @Id
     private String id;
     private String username;
     private String password;
+    private String photoUrl;
     private UserRole role;
 
     @Override
@@ -40,6 +39,4 @@ public class User implements UserDetails {
     public String getPassword() {
         return this.password;
     }
-
-
 }

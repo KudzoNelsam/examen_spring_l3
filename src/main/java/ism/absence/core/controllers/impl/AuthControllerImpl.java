@@ -7,7 +7,7 @@ import ism.absence.core.dto.request.UserAuthRequestDTO;
 import ism.absence.core.dto.request.UserRequestDTO;
 import ism.absence.core.dto.response.UserResponseDTO;
 import ism.absence.core.dto.response.RestResponse;
-import ism.absence.core.mappers.UserMapper;
+import ism.absence.data.enums.UserRole;
 import ism.absence.data.models.User;
 import ism.absence.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,10 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     public ResponseEntity<RestResponse<UserResponseDTO>> register(@Validated @RequestBody UserRequestDTO userRequestDto) {
-        User user = UserMapper.INSTANCE.toEntity(userRequestDto);
+        User user = new User();
+        user.setUsername(userRequestDto.getUsername());
+        user.setPassword(userRequestDto.getPassword());
+        user.setRole(UserRole.valueOf(userRequestDto.getRole()));
         user = userService.save(user);
 
         String token = jwtUtil.generateToken(user.getUsername());

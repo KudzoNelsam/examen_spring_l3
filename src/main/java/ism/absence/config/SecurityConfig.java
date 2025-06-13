@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**", // AJOUT OBLIGATOIRE
                                 "/swagger-ui.html" // (optionnel, mais recommandé)

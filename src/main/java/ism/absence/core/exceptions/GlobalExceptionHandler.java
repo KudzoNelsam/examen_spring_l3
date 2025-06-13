@@ -22,7 +22,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // Ajout d’un gestionnaire générique (optionnel, mais recommandé)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RestResponse<Void>> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
