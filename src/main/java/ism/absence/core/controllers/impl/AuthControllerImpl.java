@@ -1,5 +1,6 @@
 package ism.absence.core.controllers.impl;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ism.absence.config.JwtUtil;
 import ism.absence.core.controllers.AuthController;
 import ism.absence.core.dto.request.UserAuthRequestDTO;
@@ -10,6 +11,7 @@ import ism.absence.core.mappers.UserMapper;
 import ism.absence.data.models.User;
 import ism.absence.services.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
+
+@Tag(name = "User Management", description = "APIs for managing users")
+@Slf4j
 
 
 @RequiredArgsConstructor
