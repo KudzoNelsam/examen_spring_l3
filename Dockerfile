@@ -2,6 +2,7 @@
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
+RUN apt-get update && apt-get install -y ca-certificates
 RUN mvn clean package -DskipTests -Dfile.encoding=UTF-8
 
 # Étape 2 : image finale avec JDK uniquement
@@ -14,4 +15,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Commande de démarrage
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djavax.net.ssl.trustStore=/path/to/cacerts", "-jar", "app.jar"]
