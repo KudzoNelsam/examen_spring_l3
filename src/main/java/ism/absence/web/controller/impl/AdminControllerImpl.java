@@ -1,10 +1,10 @@
-package ism.absence.mobile.controller.impl;
+package ism.absence.web.controller.impl;
 
 import ism.absence.core.dto.response.RestResponse;
 import ism.absence.data.enums.EtatJustificatif;
 import ism.absence.data.models.Justificatif;
 import ism.absence.data.repository.JustificatifRepository;
-import ism.absence.mobile.controller.AdminController;
+import ism.absence.web.controller.AdminController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

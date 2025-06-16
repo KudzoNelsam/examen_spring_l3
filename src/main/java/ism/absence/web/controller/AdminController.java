@@ -1,4 +1,4 @@
-package ism.absence.mobile.controller;
+package ism.absence.web.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
