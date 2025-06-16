@@ -3,5 +3,7 @@ package ism.absence.data.enums;
 public enum StatutPointage {
     PRESENT,
     EN_RETARD,
-    ABSENT;
+    ABSENT,
+    EN_ATTENTE,
+    INCONNU;
 }

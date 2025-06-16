@@ -10,6 +10,7 @@ public class Cours {
     @Id
     private String id;
     private String nom;
+    private String professeur;
     //    Relation
-    private Module module;
+    private String moduleId;
 }

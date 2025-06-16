@@ -12,7 +12,8 @@ public class Inscription {
     @Id
     private String id;
     private LocalDate dateInscription;
-    private AnneeScolaire anneeScolaire;
-    private Etudiant etudiant;
-    private Classe classe;
+    private String anneeScolaireId;
+    private String etudiantId;
+    private String classeId;
+    private boolean active = true;
 }

@@ -31,12 +31,12 @@ public class SecurityConfig {
                                 "/api/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**", // AJOUT OBLIGATOIRE
-                                "/swagger-ui.html" // (optionnel, mais recommandé)
+                                "/swagger-ui.html"
                         ).permitAll() // routes publiques
+                        .requestMatchers("api/auth/me").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 

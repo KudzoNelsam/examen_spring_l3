@@ -20,13 +20,13 @@ public class FileControllerImpl implements FileController {
     private final CloudinaryService cloudinaryService;
 
 
-    public ResponseEntity<RestResponse<String>> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         String imageUrl = cloudinaryService.uploadFile(file);
-        return ResponseEntity.ok(RestResponse.of(HttpStatus.OK, imageUrl, "file_uploaded"));
+        return ResponseEntity.ok(RestResponse.response(HttpStatus.OK, imageUrl, "file_uploaded"));
     }
 
-    public ResponseEntity<RestResponse<String>> deleteFile(@RequestParam("public_id") String publicId) {
+    public ResponseEntity<?> deleteFile(@RequestParam("public_id") String publicId) {
         String result = cloudinaryService.deleteFile(publicId);
-        return ResponseEntity.ok(RestResponse.of(HttpStatus.OK, result, "file_deleted"));
+        return ResponseEntity.ok(RestResponse.response(HttpStatus.OK, result, "file_deleted"));
     }
 }
