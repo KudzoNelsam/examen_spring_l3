@@ -12,25 +12,25 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<RestResponse<Void>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+    public ResponseEntity<?> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                RestResponse.<Void>builder()
-                        .status(HttpStatus.CONFLICT.value())
-                        .type("user_already_exists")
-                        .errors(Map.of("username", ex.getMessage()))
-                        .build()
+                RestResponse.response(
+                        HttpStatus.CONFLICT,
+                        Map.of("username", ex.getMessage()),
+                        "user_already_exists"
+                )
         );
     }
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestResponse<Void>> handleGenericException(Exception ex) {
+    public ResponseEntity<?> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                RestResponse.<Void>builder()
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                        .type("internal_server_error")
-                        .errors(Map.of("error", ex.getMessage()))
-                        .build()
+                RestResponse.response(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        Map.of("error", ex.getMessage()),
+                        "internal_server_error"
+                )
         );
     }
 }

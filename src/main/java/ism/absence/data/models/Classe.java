@@ -13,5 +13,6 @@ public class Classe {
     private String libelle;
     private Grade grade;
     //    Relation
-    private Filiere filiere;
+    private String filiereId;
+    private String coursId;
 }

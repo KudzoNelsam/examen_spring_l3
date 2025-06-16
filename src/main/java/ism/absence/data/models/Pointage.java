@@ -15,8 +15,8 @@ public class Pointage {
     private LocalDateTime date;
     private StatutPointage statut;
 //    Relation
-    private Vigile vigile;
-    private SeanceCours seanceCours;
-    private Etudiant etudiant;
-    private boolean estJustifie;
+    private String vigileId;
+    private String seanceCoursId;
+    private String matricule;
+    private boolean estJustifie = false;
 }

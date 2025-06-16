@@ -1,9 +1,5 @@
 package ism.absence.core.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
-import lombok.Data;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -11,63 +7,46 @@ import org.springframework.validation.FieldError;
 import java.util.HashMap;
 import java.util.Map;
 
-@Data
-@Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class RestResponse <T>{
-    private int status;
-    private String type;
-    private T data;
-    private PaginationMeta pagination;
-    private Map<String, String> errors;
+public class RestResponse {
 
-    public static <T> RestResponse<T> of(HttpStatus status, T data, String type) {
-        return RestResponse.<T>builder()
-                .status(status.value())
-                .data(data)
-                .type(type)
-                .build();
+    public static Map<String, Object> response(HttpStatus status, Object data, String type) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", status.value());
+        response.put("result", data);
+        response.put("type", type);
+        return response;
     }
 
-    public static <T> RestResponse<T> paginate(Page<T> page, String type, HttpStatus status) {
-        return RestResponse.<T>builder()
-                .status(status.value())
-                .data((T) page.getContent())
-                .type(type)
-                .pagination(PaginationMeta.of(page))
-                .build();
-    }
-
-    public static RestResponse<Void> withErrors(BindingResult result, HttpStatus status) {
-        Map<String, String> errorMap = new HashMap<>();
-        for (FieldError error : result.getFieldErrors()) {
-            errorMap.put(error.getField(), error.getDefaultMessage());
+    public static Map<String, Object> responseError(BindingResult bindingResult) {
+        Map<String, Object> errors = new HashMap<>();
+        for (FieldError error : bindingResult.getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
         }
 
-        return RestResponse.<Void>builder()
-                .status(status.value())
-                .errors(errorMap)
-                .type("error")
-                .build();
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("type", "error");
+        response.put("errors", errors);
+        return response;
     }
 
-    @Data
-    @Builder
-    public static class PaginationMeta {
-        private int currentPage;
-        private int totalPages;
-        private long totalElements;
-        private boolean first;
-        private boolean last;
-
-        public static <T> PaginationMeta of(Page<T> page) {
-            return PaginationMeta.builder()
-                    .currentPage(page.getNumber())
-                    .totalPages(page.getTotalPages())
-                    .totalElements(page.getTotalElements())
-                    .first(page.isFirst())
-                    .last(page.isLast())
-                    .build();
-        }
+    public static Map<String, Object> responsePaginate(HttpStatus status,
+                                                       Object results,
+                                                       int currentPage,
+                                                       int totalPages,
+                                                       long totalElements,
+                                                       boolean first,
+                                                       boolean last,
+                                                       String type) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", status.value());
+        response.put("results", results);
+        response.put("currentPage", currentPage);
+        response.put("totalPages", totalPages);
+        response.put("totalElements", totalElements);
+        response.put("first", first);
+        response.put("last", last);
+        response.put("type", type);
+        return response;
     }
 }

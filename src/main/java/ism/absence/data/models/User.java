@@ -17,7 +17,6 @@ import java.util.Collections;
 @AllArgsConstructor
 @Builder
 public class User extends Personne implements UserDetails {
-
     @Id
     private String id;
     private String username;

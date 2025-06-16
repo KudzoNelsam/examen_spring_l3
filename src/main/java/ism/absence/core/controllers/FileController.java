@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/files")
 public interface FileController {
     @PostMapping("/upload")
-    ResponseEntity<RestResponse<String>> uploadFile(@RequestParam("file") MultipartFile file);
+    ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file);
     @DeleteMapping("/delete")
-    ResponseEntity<RestResponse<String>> deleteFile(@RequestParam("public_id") String publicId);
+    ResponseEntity<?> deleteFile(@RequestParam("public_id") String publicId);
 }

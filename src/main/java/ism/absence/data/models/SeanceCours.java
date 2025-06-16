@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
@@ -13,6 +14,8 @@ public class SeanceCours {
     private String id;
     private LocalTime heureDebut;
     private LocalTime heureFin;
+    private LocalDate date;
 //    Relation
-    private Cours cours;
+    private String coursId;
+    private String salleId;
 }
