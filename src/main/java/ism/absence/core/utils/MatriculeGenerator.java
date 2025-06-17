@@ -15,7 +15,7 @@ public class MatriculeGenerator {
         return "ISM"
                 + String.valueOf(LocalDate.now().getYear()).substring(2)
                 + String.valueOf(LocalDate.now().getYear() - 1).substring(2)
-                + "/DK-"
+                + "-DK-"
                 + "0".repeat(size - String.valueOf(numero).length())
                 + numero;
     }
