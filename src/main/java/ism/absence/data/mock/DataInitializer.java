@@ -37,30 +37,33 @@ public class DataInitializer implements CommandLineRunner {
     private final UserService userService;
     private final JustificatifRepository justificatifRepository;
 
-    private List<Etudiant> etudiants = new ArrayList<>();
-    private List<AnneeScolaire> annees = new ArrayList<>();
-    private List<Filiere> filieres = new ArrayList<>();
-    private List<Classe> classes = new ArrayList<>();
-    private List<Module> modules = new ArrayList<>();
-    private List<Cours> cours = new ArrayList<>();
-    private List<SeanceCours> seances = new ArrayList<>();
-    private List<Pointage> pointages = new ArrayList<>();
-    private List<Salle> salles = new ArrayList<>();
+    private final List<Etudiant> etudiants = new ArrayList<>();
+    private final List<AnneeScolaire> annees = new ArrayList<>();
+    private final List<Filiere> filieres = new ArrayList<>();
+    private final List<Classe> classes = new ArrayList<>();
+    private final List<Module> modules = new ArrayList<>();
+    private final List<Cours> cours = new ArrayList<>();
+    private final List<SeanceCours> seances = new ArrayList<>();
+    private final List<Pointage> pointages = new ArrayList<>();
+    private final List<Salle> salles = new ArrayList<>();
     private User userVigile;
+
+    private static final double DEFAULT_LONGITUDE = -17.458473;
+    private static final double DEFAULT_LATITUDE = 14.69058;
 
     @Override
     public void run(String... args) {
         clearData();
+        createAdminAndVigile();
         createEtudiants();
         createAnnees();
         createFilieres();
-        createClasses();
-        createInscriptions();
         createModules();
         createCours();
+        createClasses();
+        createInscriptions();
         createSalles();
         createSeances();
-        createVigile();
         createPointages();
         createJustificatifs();
     }
@@ -77,14 +80,63 @@ public class DataInitializer implements CommandLineRunner {
         anneeScolaireRepository.deleteAll();
         etudiantRepository.deleteAll();
         salleRepository.deleteAll();
+        vigileRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     private void createEtudiants() {
-        List<User> users = userRepository.findAll();
-        for (User user : users) {
+        for (int i = 1; i <= 20; i++) {
+            User user = new User();
+            user.setFullName("Etudiant " + i);
+            user.setUsername(String.format("etu%03d", i)); // etu001 à etu020
+            user.setPassword("passer");
+            user.setAdresse("Dakar");
+            user.setRole(UserRole.ROLE_ETUDIANT);
+
+            Localisation loc = new Localisation(DEFAULT_LONGITUDE, DEFAULT_LATITUDE);
+            user.setLocalisation(loc);
+
+            user = userService.save(user);
+
             Etudiant etu = new Etudiant();
             etu.setUserId(user.getId());
             etudiants.add(etudiantService.save(etu));
+        }
+    }
+
+    private void createAdminAndVigile() {
+        Optional<User> existingAdmin = userRepository.findByUsername("admin");
+        if (existingAdmin.isEmpty()) {
+            User admin = new User();
+            admin.setUsername("admin");
+            admin.setPassword("admin123");
+            admin.setFullName("Administrateur Principal");
+            admin.setAdresse("Administration Centrale");
+            admin.setRole(UserRole.ROLE_ADMIN);
+            Localisation loc = new Localisation(DEFAULT_LONGITUDE, DEFAULT_LATITUDE);
+            admin.setLocalisation(loc);
+            userService.save(admin);
+        }
+
+        Optional<User> existingVigile = userRepository.findByUsername("johndoe");
+        if (existingVigile.isEmpty()) {
+            User vigileUser = new User();
+            vigileUser.setUsername("johndoe");
+            vigileUser.setPassword("passer");
+            vigileUser.setFullName("John Doe");
+            vigileUser.setAdresse("Sicap Amitié");
+            vigileUser.setRole(UserRole.ROLE_VIGILE);
+            Localisation loc = new Localisation(DEFAULT_LONGITUDE, DEFAULT_LATITUDE);
+            vigileUser.setLocalisation(loc);
+            vigileUser = userService.save(vigileUser);
+
+            Vigile vigile = new Vigile();
+            vigile.setUserId(vigileUser.getId());
+            vigile.setNumeroVig("VIG001");
+            vigileRepository.save(vigile);
+            this.userVigile = vigileUser;
+        } else {
+            this.userVigile = existingVigile.get();
         }
     }
 
@@ -114,163 +166,225 @@ public class DataInitializer implements CommandLineRunner {
         filieres.add(filiereRepository.save(f2));
     }
 
+    private void createModules() {
+        String[] nomsModules = {"Java", "Python", "Flutter", "Spring Boot"};
+        for (String nom : nomsModules) {
+            Module m = new Module();
+            m.setLibelle("Programmation " + nom);
+            modules.add(moduleRepository.save(m));
+        }
+    }
+
+    private void createCours() {
+        String[] profs = {"Baila Wane", "Aly Niang", "Fatou Sow", "Aminata Diallo"};
+
+        for (int i = 0; i < modules.size(); i++) {
+            Module m = modules.get(i);
+            Cours c = new Cours();
+            c.setNom("Cours de " + m.getLibelle());
+            c.setProfesseur(profs[i % profs.length]);
+            c.setModuleId(m.getId());
+            cours.add(coursRepository.save(c));
+        }
+    }
+
     private void createClasses() {
+        // Chaque classe est liée à un cours spécifique
         Classe cl1 = new Classe();
-        cl1.setFiliereId(filieres.get(1).getId()); // GLRS
+        cl1.setFiliereId(filieres.get(0).getId()); // IAGE
         cl1.setGrade(Grade.L3);
-        cl1.setLibelle("L3-GLRS");
+        cl1.setLibelle("L3-IAGE");
+        cl1.setCoursId(cours.get(0).getId()); // Java
         classes.add(classeRepository.save(cl1));
 
         Classe cl2 = new Classe();
         cl2.setFiliereId(filieres.get(0).getId()); // IAGE
         cl2.setGrade(Grade.L3);
-        cl2.setLibelle("L3-IAGE");
+        cl2.setLibelle("L3-IAGE-B");
+        cl2.setCoursId(cours.get(1).getId()); // Python
         classes.add(classeRepository.save(cl2));
+
+        Classe cl3 = new Classe();
+        cl3.setFiliereId(filieres.get(1).getId()); // GLRS
+        cl3.setGrade(Grade.L3);
+        cl3.setLibelle("L3-GLRS");
+        cl3.setCoursId(cours.get(2).getId()); // Flutter
+        classes.add(classeRepository.save(cl3));
+
+        Classe cl4 = new Classe();
+        cl4.setFiliereId(filieres.get(1).getId()); // GLRS
+        cl4.setGrade(Grade.L3);
+        cl4.setLibelle("L3-GLRS-B");
+        cl4.setCoursId(cours.get(3).getId()); // Spring Boot
+        classes.add(classeRepository.save(cl4));
     }
 
     private void createInscriptions() {
-        AnneeScolaire anneeEnCours = annees.stream()
+        AnneeScolaire annee = annees.stream()
                 .filter(a -> a.getStatut() == StatutAnnee.ENCOURS)
-                .findFirst().orElseThrow();
+                .findFirst()
+                .orElseThrow();
 
-        Classe classe = classes.get(0); // L3-GLRS
-        for (Etudiant etudiant : etudiants) {
+        // Répartir les étudiants dans les 4 classes
+        for (int i = 0; i < etudiants.size(); i++) {
             Inscription ins = new Inscription();
-            ins.setEtudiantId(etudiant.getId());
-            ins.setAnneeScolaireId(anneeEnCours.getId());
-            ins.setClasseId(classe.getId());
+            ins.setEtudiantId(etudiants.get(i).getId());
+            ins.setClasseId(classes.get(i % classes.size()).getId()); // Répartition cyclique
+            ins.setAnneeScolaireId(annee.getId());
             ins.setDateInscription(LocalDate.now());
+            ins.setActive(true);
             inscriptionRepository.save(ins);
         }
     }
 
-    private void createModules() {
-        Module m1 = new Module();
-        m1.setLibelle("Programmation Java");
-        modules.add(moduleRepository.save(m1));
-
-        Module m2 = new Module();
-        m2.setLibelle("Programmation Python");
-        modules.add(moduleRepository.save(m2));
-    }
-
-    private void createCours() {
-        Cours c1 = new Cours();
-        c1.setNom("Java");
-        c1.setProfesseur("Baila Wane");
-        c1.setModuleId(modules.get(0).getId());
-        cours.add(coursRepository.save(c1));
-
-        Cours c2 = new Cours();
-        c2.setNom("Python");
-        c2.setProfesseur("Aly Niang");
-        c2.setModuleId(modules.get(1).getId());
-        cours.add(coursRepository.save(c2));
-
-        // Associer un cours à une classe
-        Classe cl = classes.get(0);
-        cl.setCoursId(c1.getId());
-        classeRepository.save(cl);
-    }
-
     private void createSalles() {
-        double longitude =-17.458750;
-        double latitude =14.7173559;
-        Salle s1 = new Salle();
-        s1.setNom("202");
-        s1.setAdresse("Dakar Campus");
-        s1.setCapacite(100);
-        s1.setLocalisation(new Localisation(longitude,latitude ));
-        salles.add(salleRepository.save(s1));
+        String[] nomsSlles = {"Salle A1", "Salle B2", "Laboratoire Info"};
 
-        Salle s2 = new Salle();
-        s2.setNom("101");
-        s2.setAdresse("Dakar Campus");
-        s2.setCapacite(65);
-        s2.setLocalisation(new Localisation(longitude,latitude ));
-        salles.add(salleRepository.save(s2));
+        for (String nom : nomsSlles) {
+            Salle s = new Salle();
+            s.setNom(nom);
+            s.setAdresse("Campus ISM Dakar");
+            s.setCapacite(60);
+            Localisation loc = new Localisation(DEFAULT_LONGITUDE, DEFAULT_LATITUDE);
+            s.setLocalisation(loc);
+            salles.add(salleRepository.save(s));
+        }
     }
 
     private void createSeances() {
-        SeanceCours sc1 = new SeanceCours();
-        sc1.setCoursId(cours.getFirst().getId());
-        sc1.setSalleId(salles.getFirst().getId());
-        sc1.setDate(LocalDate.of(2025, 6, 15));
-        sc1.setHeureDebut(LocalTime.of(8, 0));
-        sc1.setHeureFin(LocalTime.of(12, 0));
-        seances.add(seanceCoursRepository.save(sc1));
+        LocalDate today = LocalDate.now();
 
-        SeanceCours sc2 = new SeanceCours();
-        sc2.setCoursId(cours.get(0).getId());
-        sc2.setSalleId(salles.get(0).getId());
-        sc2.setDate(LocalDate.of(2025, 6, 16));
-        sc2.setHeureDebut(LocalTime.of(13, 0));
-        sc2.setHeureFin(LocalTime.of(17, 0));
-        seances.add(seanceCoursRepository.save(sc2));
-    }
+        for (Cours c : cours) {
+            // Créer des séances passées
+            for (int i = 0; i < 3; i++) {
+                SeanceCours s1 = new SeanceCours();
+                s1.setCoursId(c.getId());
+                s1.setSalleId(salles.get(i % salles.size()).getId());
+                s1.setDate(today.minusDays(14 + i * 2)); // Séances passées
+                s1.setHeureDebut(LocalTime.of(8, 0));
+                s1.setHeureFin(LocalTime.of(10, 0));
+                seances.add(seanceCoursRepository.save(s1));
+            }
 
-    private void createVigile() {
-        Optional<User> existing = userRepository.findByUsername("johndoe");
-        if (existing.isPresent()) {
-            userVigile = existing.get();
-        } else {
-            User user = new User();
-            user.setAdresse("Sicap Amitié");
-            user.setFullName("John Doe");
-            user.setRole(UserRole.ROLE_VIGILE);
-            user.setPassword("passer");
-            user.setUsername("johndoe");
-            user.setLocalisation(new Localisation(0, 0));
-            userVigile = userService.save(user);
+            // Créer des séances futures
+            for (int i = 0; i < 2; i++) {
+                SeanceCours s2 = new SeanceCours();
+                s2.setCoursId(c.getId());
+                s2.setSalleId(salles.get((i + 1) % salles.size()).getId());
+                s2.setDate(today.plusDays(2 + i * 3)); // Séances futures
+                s2.setHeureDebut(LocalTime.of(14, 0));
+                s2.setHeureFin(LocalTime.of(16, 0));
+                seances.add(seanceCoursRepository.save(s2));
+            }
         }
-
-        Vigile vigile = new Vigile();
-        vigile.setUserId(userVigile.getId());
-        vigile.setNumeroVig("VIG001");
-        vigileRepository.save(vigile);
     }
 
     private void createPointages() {
-        AnneeScolaire anneeEnCours = annees.stream()
+        AnneeScolaire annee = annees.stream()
                 .filter(a -> a.getStatut() == StatutAnnee.ENCOURS)
-                .findFirst().orElseThrow();
+                .findFirst()
+                .orElseThrow();
 
         for (Etudiant etu : etudiants) {
-            Optional<Inscription> opt = inscriptionRepository.findByEtudiantIdAndAnneeScolaireId(
-                    etu.getId(), anneeEnCours.getId()
-            );
-            if (opt.isEmpty()) continue;
-            Inscription ins = opt.get();
+            Optional<Inscription> inscriptionOpt = inscriptionRepository
+                    .findByEtudiantIdAndAnneeScolaireId(etu.getId(), annee.getId());
+
+            if (inscriptionOpt.isEmpty()) continue;
+
+            Inscription inscription = inscriptionOpt.get();
+            Classe classe = classeRepository.findById(inscription.getClasseId()).orElse(null);
+            if (classe == null) continue;
+
+            int absencesCount = 0;
+            int pointageCounter = 0;
 
             for (SeanceCours sc : seances) {
-                Classe cl = classeRepository.findByCoursId(sc.getCoursId());
-                if (!cl.getId().equals(ins.getClasseId())) continue;
+                // Vérifier si cette séance concerne le cours de la classe de l'étudiant
+                if (!sc.getCoursId().equals(classe.getCoursId())) {
+                    continue;
+                }
 
                 Pointage p = new Pointage();
                 p.setMatricule(etu.getMatricule());
                 p.setSeanceCoursId(sc.getId());
-                p.setDate(LocalDateTime.of(sc.getDate(), sc.getHeureDebut().plusMinutes(10)));
-                p.setStatut(StatutPointage.EN_ATTENTE);
                 p.setVigileId(userVigile.getId());
+                p.setEstJustifie(false); // Par défaut non justifié
+
+                // Logique de pointage basée sur la date de la séance
+                if (sc.getDate().isBefore(LocalDate.now())) {
+                    // Séances passées
+                    if (absencesCount < 2) {
+                        // Forcer quelques absences pour avoir des données de test
+                        p.setStatut(StatutPointage.ABSENT);
+                        p.setDate(LocalDateTime.of(sc.getDate(), sc.getHeureFin().plusHours(1)));
+                        absencesCount++;
+                    } else {
+                        int remainder = pointageCounter % 10;
+                        if (remainder < 6) {
+                            p.setStatut(StatutPointage.PRESENT);
+                            p.setDate(LocalDateTime.of(sc.getDate(), sc.getHeureDebut().plusMinutes(5)));
+                        } else if (remainder < 8) {
+                            p.setStatut(StatutPointage.EN_RETARD);
+                            p.setDate(LocalDateTime.of(sc.getDate(), sc.getHeureDebut().plusMinutes(25)));
+                        } else {
+                            p.setStatut(StatutPointage.ABSENT);
+                            p.setDate(LocalDateTime.of(sc.getDate(), sc.getHeureFin().plusHours(1)));
+                        }
+                    }
+                } else {
+                    // Séances futures - en attente
+                    p.setStatut(StatutPointage.EN_ATTENTE);
+                    p.setDate(null); // Pas encore de pointage
+                }
+
                 pointages.add(pointageRepository.save(p));
+                pointageCounter++;
             }
         }
     }
 
     private void createJustificatifs() {
+        int justificatifCounter = 0;
+
         for (Pointage p : pointages) {
-            if (p.getStatut() == StatutPointage.ABSENT) {
-                SeanceCours sc = seanceCoursRepository.findById(p.getSeanceCoursId()).orElse(null);
-                if (sc == null) continue;
-                if (p.getDate().isAfter(LocalDateTime.of(sc.getDate(), sc.getHeureFin()))) {
+            if (p.getStatut() == StatutPointage.ABSENT && p.getDate() != null) {
+                // Créer un justificatif pour certaines absences seulement
+                if (justificatifCounter % 3 == 0) { // 1 justificatif sur 3 absences
                     Justificatif j = new Justificatif();
-                    j.setMotif("Maladie grave");
-                    j.setEtat(EtatJustificatif.EN_COURS);
-                    j.setDate(LocalDateTime.now());
-                    j.setPiecesJointes(null); // tu peux intégrer Cloudinary plus tard ici
+                    j.setMotif(getRandomMotif(justificatifCounter));
+                    j.setEtat(getRandomEtat(justificatifCounter));
+                    j.setDate(p.getDate().plusHours(2)); // Justificatif soumis après l'absence
+                    j.setMatricule(p.getMatricule()); // Utilise le matricule de l'étudiant
+                    j.setPiecesJointes(null);
                     justificatifRepository.save(j);
+
+                    // Marquer le pointage comme justifié si le justificatif est validé
+                    if (j.getEtat() == EtatJustificatif.VALIDE) {
+                        p.setEstJustifie(true);
+                        pointageRepository.save(p);
+                    }
                 }
+                justificatifCounter++;
             }
         }
+    }
+
+    private String getRandomMotif(int index) {
+        String[] motifs = {
+                "Maladie grave",
+                "Urgence familiale",
+                "Problème de transport",
+                "Rendez-vous médical"
+        };
+        return motifs[index % motifs.length];
+    }
+
+    private EtatJustificatif getRandomEtat(int index) {
+        EtatJustificatif[] etats = {
+                EtatJustificatif.EN_COURS,
+                EtatJustificatif.VALIDE,
+                EtatJustificatif.REJETE
+        };
+        return etats[index % etats.length];
     }
 }

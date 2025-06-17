@@ -10,4 +10,6 @@ public interface JustificatifRepository extends MongoRepository<Justificatif, St
     List<Justificatif> findAllByMatricule(String matricule);
 
     List<Justificatif> findAllByEtat(EtatJustificatif etatJustificatif);
+
+    long countByMatriculeAndEtat(String trim, EtatJustificatif etatEnum);
 }

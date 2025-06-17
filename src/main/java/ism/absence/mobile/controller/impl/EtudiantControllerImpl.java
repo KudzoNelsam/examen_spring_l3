@@ -21,8 +21,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,17 +37,16 @@ public class EtudiantControllerImpl implements EtudiantController {
     private final SeanceCoursRepository seanceCoursRepository;
 
     @Override
-    public ResponseEntity<?> getPointages(String matricule) {
+    public ResponseEntity<?> getPointages(String matricule, Principal principal) {
+
         List<Pointage> pointages = pointageRepository.findByMatricule(matricule);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-
         List<AbsenceRetardDTO> dtos = pointages.stream()
                 .filter(p -> p.getStatut() == StatutPointage.ABSENT || p.getStatut() == StatutPointage.EN_RETARD)
                 .map(p -> {
-                    Cours cours = coursRepository.findById(seanceCoursRepository.findById(p.getSeanceCoursId())
-                                    .get().getCoursId())
-                            .orElse(null);
+                    Cours cours = coursRepository.findById(
+                            seanceCoursRepository.findById(p.getSeanceCoursId()).get().getCoursId()
+                    ).orElse(null);
                     AbsenceRetardDTO dto = new AbsenceRetardDTO();
                     dto.setId(p.getId());
                     dto.setDate(p.getDate().format(formatter));
@@ -56,10 +58,11 @@ public class EtudiantControllerImpl implements EtudiantController {
                     return dto;
                 })
                 .toList();
+        System.out.println(pointages);
 
-        return ResponseEntity.ok(RestResponse.response(HttpStatus.OK,
-                dtos,
-                AbsenceRetardDTO.class.getTypeName()));
+        return ResponseEntity.ok(
+                RestResponse.response(HttpStatus.OK, dtos, AbsenceRetardDTO.class.getTypeName())
+        );
     }
 
     @Override

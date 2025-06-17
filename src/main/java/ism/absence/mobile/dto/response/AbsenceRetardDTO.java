@@ -11,4 +11,5 @@ public class AbsenceRetardDTO {
     private String seanceCoursId;
     private String nomCours;
     private String nomProf;
+
 }

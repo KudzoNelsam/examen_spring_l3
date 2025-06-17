@@ -59,8 +59,6 @@ public class AuthControllerImpl implements AuthController {
         }
 
         User user = (User) authentication.getPrincipal();
-        System.out.println("Utilisateur connecté : " + user.getFullName());
-
         Etudiant etudiant = etudiantService.findByUserId(user.getId());
         if (etudiant == null) {
             System.out.println("Aucun étudiant trouvé pour l'utilisateur " + user.getId());
@@ -81,12 +79,6 @@ public class AuthControllerImpl implements AuthController {
         LocalDate today = now.toLocalDate();
 
         List<Pointage> pointages = pointageRepository.findByMatricule(etudiant.getMatricule());
-
-        if (pointages.isEmpty()) {
-            System.out.println("L'étudiant " + etudiant.getMatricule() + " n'a pas de pointage.");
-        } else {
-            System.out.println("Pointages trouvés : " + pointages.size());
-        }
 
         Pointage pointage = pointages.stream()
                 .filter(p -> {
@@ -109,59 +101,49 @@ public class AuthControllerImpl implements AuthController {
                 }))
                 .orElse(null);
 
-        if (pointage == null) {
-            System.out.println("❌ Aucun pointage valide trouvé pour aujourd’hui.");
-        }
-
-        SeanceCours seanceCours = null;
-        if (pointage != null && pointage.getSeanceCoursId() != null) {
-            seanceCours = seanceCoursRepository.findById(pointage.getSeanceCoursId()).orElse(null);
-        }
-
-        Cours cours = null;
-        Salle salle = null;
-
-        if (seanceCours != null) {
-            String coursId = seanceCours.getCoursId();
-            String salleId = seanceCours.getSalleId();
-
-            if (coursId != null) {
-                cours = coursRepository.findById(coursId).orElse(null);
-            } else {
-                System.out.println("⚠️ coursId null dans seanceCours : " + seanceCours.getId());
-            }
-
-            if (salleId != null) {
-                salle = salleRepository.findById(salleId).orElse(null);
-            } else {
-                System.out.println("⚠️ salleId null dans seanceCours : " + seanceCours.getId());
-            }
-        }
-
         EtudiantResponseDTO dto = new EtudiantResponseDTO();
         dto.setFullName(user.getFullName());
         dto.setMatricule(etudiant.getMatricule());
-        dto.setPhotoUrl(user.getPhotoUrl()); // ça va venir de cloudinary
+        dto.setPhotoUrl(user.getPhotoUrl());
 
-        SeanceCoursDTO seanceCoursDTO = getSeanceCoursDTO(cours, seanceCours, salle, pointage);
-        dto.setCurrentSeanceCours(seanceCoursDTO);
+        // ✅ MODIFICATION ICI : Ne créer SeanceCoursDTO que si pointage existe
+        SeanceCoursDTO seanceCoursDTO = null;
+        if (pointage != null && pointage.getSeanceCoursId() != null) {
+            SeanceCours seanceCours = seanceCoursRepository.findById(pointage.getSeanceCoursId()).orElse(null);
+
+            if (seanceCours != null) {
+                Cours cours = null;
+                Salle salle = null;
+
+                if (seanceCours.getCoursId() != null) {
+                    cours = coursRepository.findById(seanceCours.getCoursId()).orElse(null);
+                }
+
+                if (seanceCours.getSalleId() != null) {
+                    salle = salleRepository.findById(seanceCours.getSalleId()).orElse(null);
+                }
+
+                seanceCoursDTO = getSeanceCoursDTO(cours, seanceCours, salle, pointage);
+            }
+        }
+
+        dto.setCurrentSeanceCours(seanceCoursDTO); // sera null si pas de cours
 
         boolean estValide = inscription.isActive();
-        String passer = estValide ? "passer" : "invalide"; // opérateur ternaire
-
+        String passer = estValide ? "passer" : "invalide";
         String qrCodeContent = passer;
 
+        // ✅ QR code simplifié si pas de cours
         if (pointage != null && pointage.getSeanceCoursId() != null && pointage.getVigileId() != null) {
             qrCodeContent += "|" + etudiant.getMatricule() + "|" + pointage.getVigileId() + "|" + pointage.getSeanceCoursId();
         } else {
-            System.out.println("⚠️ Impossible de générer le QR code avec seance : pointage ou ses champs sont null");
+            // QR code basique pour étudiant sans cours du jour
+            qrCodeContent = passer + "|" + etudiant.getMatricule();
         }
-
 
         dto.setAJour(estValide);
         dto.setMotCle(passer);
         dto.setQrCodeContent(qrCodeContent);
-
         return ResponseEntity.ok(
                 RestResponse.response(
                         HttpStatus.OK,
