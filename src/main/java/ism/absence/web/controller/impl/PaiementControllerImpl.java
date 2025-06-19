@@ -73,8 +73,9 @@ public class PaiementControllerImpl implements PaiementController {
             boolean hasTelephone = telephone != null && !telephone.trim().isEmpty();
             boolean hasNumeroDette = numeroDette != null && !numeroDette.trim().isEmpty();
 
-            FilterResult filterResult = getFilteredPaiements(telephone, numeroDette, hasTelephone, hasNumeroDette, pageable);
 
+            FilterResult filterResult = getFilteredPaiements(telephone, numeroDette, hasTelephone, hasNumeroDette, pageable);
+//
             List<PaiementResponseDTO> result = mapToResponseDTOs(filterResult.paiementPage.getContent());
 
             Map<String, Object> data = buildResponseData(result, telephone, numeroDette, filterResult.client, filterResult.dette);
@@ -89,12 +90,13 @@ public class PaiementControllerImpl implements PaiementController {
                     filterResult.paiementPage.hasNext(),
                     PaiementResponseDTO.class.getTypeName()
             ));
-
+//
         } catch (Exception e) {
-            // Log error and return appropriate response
+//            // Log error and return appropriate response
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(RestResponse.responseError2("Error filtering payments: " + e.getMessage()));
         }
+
     }
 
     private FilterResult getFilteredPaiements(String telephone, String numeroDette,
@@ -124,13 +126,13 @@ public class PaiementControllerImpl implements PaiementController {
 
         return new FilterResult(paiementPage, client, dette);
     }
-
+//
     private List<PaiementResponseDTO> mapToResponseDTOs(List<Paiement> paiements) {
         return paiements.stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
-
+//
     private PaiementResponseDTO mapToResponseDTO(Paiement paiement) {
         PaiementResponseDTO dto = new PaiementResponseDTO();
         dto.setDetteId(paiement.getId()); // Fixed mapping
@@ -139,7 +141,7 @@ public class PaiementControllerImpl implements PaiementController {
         dto.setMontantRestant(detteRepository.findById(paiement.getDetteId()).get().getMontantRestant()); // Get from payment's debt
         return dto;
     }
-
+//
     private Map<String, Object> buildResponseData(List<PaiementResponseDTO> result, String telephone,
                                                   String numeroDette, Client client, Dette dette) {
         Map<String, Object> data = new HashMap<>();
@@ -151,7 +153,7 @@ public class PaiementControllerImpl implements PaiementController {
         data.put("clientNom", client != null ? client.getNom() : "");
         return data;
     }
-
+//
     private static class FilterResult {
         final Page<Paiement> paiementPage;
         final Client client;
