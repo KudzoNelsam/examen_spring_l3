@@ -12,7 +12,7 @@ public class RestResponse {
     public static Map<String, Object> response(HttpStatus status, Object data, String type) {
         Map<String, Object> response = new HashMap<>();
         response.put("status", status.value());
-        response.put("result", data);
+        response.put("data", data);
         response.put("type", type);
         return response;
     }
@@ -40,7 +40,7 @@ public class RestResponse {
                                                        String type) {
         Map<String, Object> response = new HashMap<>();
         response.put("status", status.value());
-        response.put("results", results);
+        response.put("data", results);
         response.put("currentPage", currentPage);
         response.put("totalPages", totalPages);
         response.put("totalElements", totalElements);

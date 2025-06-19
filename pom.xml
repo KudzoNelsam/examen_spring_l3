@@ -125,6 +125,14 @@
         </dependency>
         <!-- SWAGGER -->
 
+        <!--        FAKER-->
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>0.15</version>
+        </dependency>
+        <!--        FAKER-->
+
 
     </dependencies>
 
