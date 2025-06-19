@@ -11,5 +11,10 @@ public interface PaiementController {
    @PostMapping("")
     ResponseEntity<?>  createPaiement(@RequestBody PaiementRequest paiementRequest);
 
+   @GetMapping("/flitrer")
+    ResponseEntity<?>  getPaiementsByFiltrer(@RequestParam(defaultValue = "") String telephone,
+                                       @RequestParam(defaultValue = "") String numeroDette,
+                                             @RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "5") int size);
 
 }

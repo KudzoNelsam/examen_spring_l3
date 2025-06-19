@@ -7,4 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface PaiementRepository extends MongoRepository<Paiement, String> {
     Page<Paiement> findByDetteId(String detteId, Pageable pageable);
+
+    Page<Paiement> findByDetteIdAndClientId(String detteId, String clientId, Pageable pageable);
 }
