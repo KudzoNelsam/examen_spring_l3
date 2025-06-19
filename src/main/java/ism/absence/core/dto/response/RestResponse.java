@@ -30,6 +30,14 @@ public class RestResponse {
         return response;
     }
 
+    public static Map<String, Object> responseError2(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("type", "error");
+        response.put("errors", message);
+        return response;
+    }
+
     public static Map<String, Object> responsePaginate(HttpStatus status,
                                                        Object results,
                                                        int currentPage,
