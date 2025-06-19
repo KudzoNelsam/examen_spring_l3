@@ -5,6 +5,8 @@ import ism.absence.web.dto.request.DetteRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 
 @RequestMapping("api/dettes")
 public interface DetteController {
@@ -26,6 +28,11 @@ public interface DetteController {
 
     @PutMapping("/{id}")
     ResponseEntity<?> update(@RequestBody ClientRequest client, @PathVariable String id);
+
+    @GetMapping("/{id}/paiements")
+    ResponseEntity<?> findWithPaiements(@PathVariable String id,
+                                        @RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "5") int size);
 
 
 }

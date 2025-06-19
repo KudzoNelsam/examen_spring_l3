@@ -11,4 +11,5 @@ public interface PaiementController {
    @PostMapping("")
     ResponseEntity<?>  createPaiement(@RequestBody PaiementRequest paiementRequest);
 
+
 }
