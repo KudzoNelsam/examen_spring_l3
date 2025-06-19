@@ -64,18 +64,20 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public ResponseEntity<?> save(ClientRequest client, BindingResult bindingResult) {
+    public ResponseEntity<?> save(ClientRequest clientRequest, BindingResult bindingResult) {
+        System.out.println(bindingResult);
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(RestResponse.responseError(bindingResult), HttpStatus.BAD_REQUEST);
+        }else{
+            return new ResponseEntity<>(RestResponse.response(
+                    HttpStatus.CREATED,
+                    ClientMapper.INSTANCE
+                            .toClientResponseDTO(clientService
+                                    .save(ClientMapper.INSTANCE
+                                            .toClient2(clientRequest))),
+                    ClientResponseDTO.class.getTypeName()
+            ), HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(RestResponse.response(
-                HttpStatus.CREATED,
-                ClientMapper.INSTANCE
-                        .toClientResponseDTO(clientService
-                                .save(ClientMapper.INSTANCE
-                                        .toClient2(client))),
-                ClientResponseDTO.class.getTypeName()
-        ), HttpStatus.CREATED);
     }
 
     @Override

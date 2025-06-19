@@ -18,7 +18,7 @@ public interface ClientController {
     );
 
     @PostMapping("")
-    ResponseEntity<?> save(@Valid @RequestBody ClientRequest client, BindingResult bindingResult);
+    ResponseEntity<?> save(@Valid @RequestBody() ClientRequest client, BindingResult bindingResult);
 
     @GetMapping("/{id}")
     ResponseEntity<?> findById(@PathVariable String id);
@@ -27,7 +27,7 @@ public interface ClientController {
     ResponseEntity<?> delete(@PathVariable String id);
 
     @PutMapping("/{id}")
-    ResponseEntity<?> update(@RequestBody ClientRequest client,  @PathVariable String id);
+    ResponseEntity<?> update(@RequestBody() ClientRequest client,  @PathVariable String id);
 
 
 }
